@@ -1,0 +1,22 @@
+name: Update production reverse proxy
+
+on:
+  push:
+    branches:
+      - production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Copy file to production
+        uses: appleboy/scp-action@v0.1.0
+        with:
+          host: ${{ secrets.PRODUCTION_HOST }}
+          username: ${{ secrets.PRODUCTION_USERNAME }}
+          key: ${{ secrets.PRODUCTION_SSH }}
+          source: 'docker-compose.yml'
+          target: '~/reverse-proxy/'
