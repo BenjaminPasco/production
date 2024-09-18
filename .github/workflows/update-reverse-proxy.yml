@@ -12,11 +12,17 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      - name: Copy file to production
-        uses: appleboy/scp-action@v0.1.0
-        with:
-          host: ${{ secrets.PRODUCTION_HOST }}
-          username: ${{ secrets.PRODUCTION_USERNAME }}
-          key: ${{ secrets.PRODUCTION_SSH }}
-          source: 'docker-compose.yml'
-          target: '~/reverse-proxy/'
+      - name: Copy docker compose file
+        run: |
+          mkdir -p /home/runner/.ssh
+          touch /home/runner/.ssh/id_rsa
+          echo "${{ secrets.PRODUCTION_SSH }}" > /home/runner/.ssh/id_rsa
+          scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/reverse-proxy/docker-compose.yml
+      # - name: Copy file to production
+      #   uses: appleboy/scp-action@v0.1.0
+      #   with:
+      #     host: ${{ secrets.PRODUCTION_HOST }}
+      #     username: ${{ secrets.PRODUCTION_USERNAME }}
+      #     key: ${{ secrets.PRODUCTION_SSH }}
+      #     source: 'docker-compose.yml'
+      #     target: '~/reverse-proxy/'
