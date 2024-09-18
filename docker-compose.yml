@@ -24,6 +24,16 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - letsencrypt:/letsencrypt
 
+  watchtower:
+    image: containrrr/watchtower
+    command: 
+    - "--label-enable"
+    - "--interval"
+    - "30"
+    - "--rolling-restart"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
 networks:
   traefik-net:
     driver: bridge
