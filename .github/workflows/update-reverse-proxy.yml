@@ -17,6 +17,7 @@ jobs:
           mkdir -p /home/runner/.ssh
           touch /home/runner/.ssh/id_rsa
           echo "${{ secrets.PRODUCTION_SSH }}" > /home/runner/.ssh/id_rsa
+          chmod 600 /home/runner/.ssh/id_rsa
           scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/reverse-proxy/docker-compose.yml
       # - name: Copy file to production
       #   uses: appleboy/scp-action@v0.1.0
