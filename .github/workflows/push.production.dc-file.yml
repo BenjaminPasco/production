@@ -22,4 +22,5 @@ jobs:
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "mkdir -p ~/reverse-proxy"
           scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/reverse-proxy/docker-compose.yml
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "cd ~/reverse-proxy && docker compose down"
+          ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "cd ~/home && docker network create traefik-net || true"
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "cd ~/reverse-proxy && docker compose up -d"
