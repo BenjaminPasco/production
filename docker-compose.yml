@@ -23,14 +23,6 @@ services:
       - "80:80"
       - "443:443"
       - "8080:8080"
-    depends_on:
-      - spotify
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080 || exit 1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
     restart: unless-stopped
     networks:
       - reverse-proxy
@@ -84,12 +76,8 @@ services:
     # deploy:
     #   mode: replicated
     #   replicas: 2
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8001 || exit 1"]
-      interval: 1m30s
-      timeout: 30s
-      retries: 5
-      start_period: 30s
+    depends_on:
+      - reverse-proxy
     restart: unless-stopped
     networks:
       - spotify
