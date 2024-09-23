@@ -63,8 +63,8 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.spotify.rule=HOST(`spotify.benpas.eu`)"
-      - "traefik.http.routers.spotify.entrypoints=websecure"
-      - "traefik.http.routers.spotify.tls.certresolver=myresolver"
+      # - "traefik.http.routers.spotify.entrypoints=websecure"
+      # - "traefik.http.routers.spotify.tls.certresolver=myresolver"
       - "traefik.http.services.spotify.loadbalancer.server.port=8001"
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
