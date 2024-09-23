@@ -12,7 +12,11 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--log.level=DEBUG"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--entrypoints.websecure.http.tls.certresolver=myresolver"
+      - "--entrypoints.websecure.http.tls.domains[0].main=benpas.eu"
+      - "--entrypoints.websecure.http.tls.domains[0].sans=*.benpas.eu"
+      - "--log.level=INFO"
     ports:
       - "80:80"
       - "443:443"
