@@ -88,8 +88,6 @@ services:
     # deploy:
     #   mode: replicated
     #   replicas: 2
-    depends_on:
-      - reverse-proxy
     restart: unless-stopped
     networks:
       - reverse-proxy
