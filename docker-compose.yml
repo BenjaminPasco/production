@@ -24,6 +24,8 @@ services:
       - "443:443"
       - "8080:8080"
     restart: unless-stopped
+    depends_on:
+      - spotify
     networks:
       - reverse-proxy
     volumes:
