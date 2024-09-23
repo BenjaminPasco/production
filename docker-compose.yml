@@ -12,6 +12,7 @@ services:
       - "--entrypoints.web.address=:80"
       - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
       - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--log.level=DEBUG"
     ports:
       - "80:80"
       - "443:443"
@@ -31,6 +32,26 @@ services:
     - "--rolling-restart"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+
+  home:
+    image: bpasco/production:home
+    platform: linux/amd64
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.home.rule=HOST(`benpas.eu`)"
+      - "traefik.http.routers.home.entrypoints=websecure"
+      - "traefik.http.routers.home.tls.certresolver=myresolver"
+      - "traefik.http.services.home.loadbalancer.server.port=8000"
+      - "com.centurylinklabs.watchtower.enable=true"
+    environment:
+      - HOST=true
+      - NODE_ENV=production
+      - PORT=8000
+    deploy:
+      mode: replicated
+      replicas: 2
+    networks:
+      - traefik-net
 
   spotify:
     image: bpasco/spotify
