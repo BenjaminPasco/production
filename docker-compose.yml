@@ -72,6 +72,15 @@ services:
       - HOST=true
       - NODE_ENV=production
       - PORT=8001
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_HOST=127.0.0.1
+      - DB_PORT=5432
+      - DB_NAME=spotify
+      - OBJ_STORE_ENDPOINT=127.0.0.1
+      - OBJ_STORE_PORT=9000
+      - OBJ_STORE_ACCESS_KEY=minioadmin
+      - OBJ_STORE_SECRET_KEY=minioadmin
     # ports:
     #  - "8001:8001"
     # deploy:
