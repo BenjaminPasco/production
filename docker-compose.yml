@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   reverse-proxy:
     image: traefik:v3.1
@@ -34,10 +32,59 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
+  spotify:
+    image: bpasco/spotify
+    platform: linux/amd64
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.spotify.rule=HOST(`spotify.benpas.eu`)"
+      - "traefik.http.routers.spotify.entrypoints=websecure"
+      - "traefik.http.routers.spotify.tls.certresolver=myresolver"
+      - "traefik.http.services.spotify.loadbalancer.server.port=8001"
+      - "com.centurylinklabs.watchtower.enable=true"
+    environment:
+      - HOST=true
+      - NODE_ENV=production
+      - PORT=8001
+    deploy:
+      mode: replicated
+      replicas: 2
+    networks:
+      - traefik-net
+      - spotify
+
+  object_storage:
+    image: minio/minio
+    ports:
+      - "9000:9000" # to be removed
+      - "9001:9001" # to be removed
+    environment:
+      MINIO_ROOT_USER: "minioadmin"  # to be removed
+      MINIO_ROOT_PASSWORD: "minioadmin"  # to be removed
+    command: server /data --console-address ":9001"
+    volumes:
+      - object_storage:/data
+    networks:
+      - spotify
+
+  db:
+    image: postgres:alpine
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: user # to be removed
+      POSTGRES_PASSWORD: password # to be removed
+      POSTGRES_DB: mydatabase # to be removed
+    volumes:
+      - postgres_data:/var/lib/postgres/data
+    networks:
+      - spotify
+
 networks:
   traefik-net:
-    driver: bridge
-    external: true
+  spotify:
 
 volumes:
   letsencrypt:
+  object_storage:
+  postgres_data:
