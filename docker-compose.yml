@@ -114,7 +114,7 @@ services:
     environment:
       POSTGRES_USER: user # to be removed
       POSTGRES_PASSWORD: password # to be removed
-      POSTGRES_DB: mydatabase # to be removed
+      POSTGRES_DB: spotify # to be removed
     volumes:
       - postgres_data:/var/lib/postgres/data
     networks:
