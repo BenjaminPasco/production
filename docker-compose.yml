@@ -1,7 +1,7 @@
 services:
   reverse-proxy:
     image: traefik:v3.1
-    command: 
+    command:
       - "--api.insecure=true"
       - "--providers.docker"
       - "--providers.docker.exposedbydefault=false"
@@ -10,23 +10,24 @@ services:
       - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
       - "--certificatesresolvers.myresolver.acme.email=benjamin.pasco.78@gmail.com"
       - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      # - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      # - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
       - "--entrypoints.websecure.http.tls=true"
       - "--entrypoints.websecure.http.tls.certresolver=myresolver"
-      # - "--entrypoints.websecure.http.tls.domains[0].main=benpas.eu"
-      # - "--entrypoints.websecure.http.tls.domains[0].sans=*.benpas.eu"
-      - "--log.level=INFO"
+      - "--log.level=DEBUG"
+      - "--accesslog=true"
+    labels:
+      - "traefik.http.routers.home.tls.options=myTLSOptions@file"
+      - "traefik.http.routers.spotify.tls.options=myTLSOptions@file"
     ports:
       - "80:80"
       - "443:443"
       - "8080:8080"
     networks:
-      - traefik-net
+      - reverse-proxy
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - letsencrypt:/letsencrypt
-
   watchtower:
     image: containrrr/watchtower
     command: 
@@ -37,46 +38,46 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  home:
-    image: bpasco/production:home
-    platform: linux/amd64
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.home.rule=HOST(`benpas.eu`)"
-      - "traefik.http.routers.home.entrypoints=websecure"
-      - "traefik.http.routers.home.tls.certresolver=myresolver"
-      - "traefik.http.services.home.loadbalancer.server.port=8000"
-      - "com.centurylinklabs.watchtower.enable=true"
-    environment:
-      - HOST=true
-      - NODE_ENV=production
-      - PORT=8000
-    deploy:
-      mode: replicated
-      replicas: 2
-    networks:
-      - traefik-net
+  # home:
+  #   image: bpasco/production:home
+  #   platform: linux/amd64
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.home.rule=HOST(`benpas.eu`)"
+  #     - "traefik.http.routers.home.entrypoints=websecure"
+  #     - "traefik.http.routers.home.tls.certresolver=myresolver"
+  #     - "traefik.http.services.home.loadbalancer.server.port=8000"
+  #     - "com.centurylinklabs.watchtower.enable=true"
+  #   environment:
+  #     - HOST=true
+  #     - NODE_ENV=production
+  #     - PORT=8000
+  #   deploy:
+  #     mode: replicated
+  #     replicas: 2
+  #   networks:
+  #     - traefik-net
 
   spotify:
     image: bpasco/spotify
     platform: linux/amd64
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.spotify.rule=HOST(`spotify.benpas.eu`)"
-      # - "traefik.http.routers.spotify.entrypoints=websecure"
-      # - "traefik.http.routers.spotify.tls.certresolver=myresolver"
+      - "traefik.http.routers.spotify.rule=HOST(`benpas.eu`)|| HOST(`spotify.benpas.eu`)"
       - "traefik.http.services.spotify.loadbalancer.server.port=8001"
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
       - HOST=true
       - NODE_ENV=production
       - PORT=8001
-    deploy:
-      mode: replicated
-      replicas: 2
+    # ports:
+    #  - "8001:8001"
+    # deploy:
+    #   mode: replicated
+    #   replicas: 2
     networks:
-      - traefik-net
       - spotify
+      - reverse-proxy
 
   object_storage:
     image: minio/minio
@@ -106,7 +107,7 @@ services:
       - spotify
 
 networks:
-  traefik-net:
+  reverse-proxy:
   spotify:
 
 volumes:
