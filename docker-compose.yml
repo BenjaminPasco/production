@@ -77,7 +77,7 @@ services:
       - DB_HOST=db
       - DB_PORT=5432
       - DB_NAME=spotify
-      - OBJ_STORE_ENDPOINT=object_storage
+      - OBJ_STORE_ENDPOINT=minio
       - OBJ_STORE_PORT=9000
       - OBJ_STORE_ACCESS_KEY=minioadmin
       - OBJ_STORE_SECRET_KEY=minioadmin
@@ -90,10 +90,11 @@ services:
       - reverse-proxy
     restart: unless-stopped
     networks:
-      - spotify
       - reverse-proxy
+      - minio
+      - db
 
-  object_storage:
+  minio:
     image: minio/minio
     ports:
       - "9000:9000" # to be removed
@@ -103,9 +104,9 @@ services:
       MINIO_ROOT_PASSWORD: "minioadmin"  # to be removed
     command: server /data --console-address ":9001"
     volumes:
-      - object_storage:/data
+      - minio:/data
     networks:
-      - spotify
+      - minio
 
   db:
     image: postgres:alpine
@@ -118,13 +119,14 @@ services:
     volumes:
       - postgres_data:/var/lib/postgres/data
     networks:
-      - spotify
+      - db
 
 networks:
   reverse-proxy:
-  spotify:
+  minio:
+  db:
 
 volumes:
   letsencrypt:
-  object_storage:
+  minio:
   postgres_data:
