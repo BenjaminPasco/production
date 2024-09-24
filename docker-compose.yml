@@ -9,7 +9,7 @@ services:
       - CERTIFICATES_PATH
     volumes:
       - ./nginx/${ENV}/:/etc/nginx
-      - ./${CERTIFICATES_PATH}:/etc/nginx/certificates
+      - ${CERTIFICATES_PATH}/:/etc/nginx/certificates
     networks:
       - nginx
 
