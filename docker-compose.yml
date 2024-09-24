@@ -1,36 +1,18 @@
 services:
-  reverse-proxy:
-    image: traefik:v3.1
-    command:
-      - "--api.insecure=true"
-      - "--providers.docker"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.web.address=:80"
-      - "--entryPoints.websecure.address=:443"
-      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
-      - "--certificatesresolvers.myresolver.acme.email=benjamin.pasco.78@gmail.com"
-      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
-      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
-      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
-      - "--entrypoints.websecure.http.tls=true"
-      - "--entrypoints.websecure.http.tls.certresolver=myresolver"
-      - "--log.level=DEBUG"
-      - "--accesslog=true"
-    labels:
-      - "traefik.http.routers.home.tls.options=myTLSOptions@file"
-      - "traefik.http.routers.spotify.tls.options=myTLSOptions@file"
+  nginx:
+    image: nginx:latest
     ports:
       - "80:80"
       - "443:443"
-      - "8080:8080"
-    restart: unless-stopped
-    depends_on:
-      - spotify
-    networks:
-      - reverse-proxy
+    environment:
+      - ENV
+      - CERTIFICATES_PATH
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - letsencrypt:/letsencrypt
+      - ./nginx/${ENV}/:/etc/nginx
+      - ./${CERTIFICATES_PATH}:/etc/nginx/certificates
+    networks:
+      - nginx
+
   watchtower:
     image: containrrr/watchtower
     command: 
@@ -41,34 +23,26 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
-  home:
-    image: bpasco/production:home
-    platform: linux/amd64
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.home.rule=HOST(`benpas.eu`)"
-      - "traefik.http.services.home.loadbalancer.server.port=8000"
-      - "com.centurylinklabs.watchtower.enable=true"
-    environment:
-      - HOST=true
-      - NODE_ENV=production
-      - PORT=8000
-    # deploy:
-    #   mode: replicated
-    #   replicas: 2
-    depends_on:
-      - reverse-proxy
-    restart: unless-stopped
-    networks:
-      - reverse-proxy
+  # home:
+  #   image: bpasco/production:home
+  #   platform: linux/amd64
+  #   labels:
+  #     - "com.centurylinklabs.watchtower.enable=true"
+  #   environment:
+  #     - HOST=true
+  #     - NODE_ENV=production
+  #     - PORT=8000
+  #   # deploy:
+  #   #   mode: replicated
+  #   #   replicas: 2
+  #   restart: unless-stopped
+  #   networks:
+  #     - nginx
 
   spotify:
-    image: bpasco/spotify
+    image: bpasco/spotify:latest
     platform: linux/amd64
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.spotify.rule=HOST(`spotify.benpas.eu`)"
-      - "traefik.http.services.spotify.loadbalancer.server.port=8001"
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
       - HOST=true
@@ -83,22 +57,17 @@ services:
       - OBJ_STORE_PORT=9000
       - OBJ_STORE_ACCESS_KEY=minioadmin
       - OBJ_STORE_SECRET_KEY=minioadmin
-    # ports:
-    #  - "8001:8001"
     # deploy:
     #   mode: replicated
     #   replicas: 2
     restart: unless-stopped
     networks:
-      - reverse-proxy
+      - nginx
       - minio
       - db
 
   minio:
     image: minio/minio
-    ports:
-      - "9000:9000" # to be removed
-      - "9001:9001" # to be removed
     environment:
       MINIO_ROOT_USER: "minioadmin"  # to be removed
       MINIO_ROOT_PASSWORD: "minioadmin"  # to be removed
@@ -110,8 +79,6 @@ services:
 
   db:
     image: postgres:alpine
-    ports:
-      - "5432:5432"
     environment:
       POSTGRES_USER: user # to be removed
       POSTGRES_PASSWORD: password # to be removed
@@ -122,11 +89,14 @@ services:
       - db
 
 networks:
-  reverse-proxy:
+  nginx:
+    driver: bridge 
   minio:
+    driver: bridge
   db:
+    driver: bridge
 
 volumes:
-  letsencrypt:
   minio:
   postgres_data:
+  letsencrypt:
