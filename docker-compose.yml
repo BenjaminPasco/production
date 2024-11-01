@@ -4,10 +4,8 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      - ENV
     volumes:
-      - ./nginx/${ENV}/:/etc/nginx
+      - ./nginx/:/etc/nginx
       - /etc/letsencrypt/:/etc/nginx/certificates
     networks:
       - nginx
