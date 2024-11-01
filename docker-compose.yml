@@ -6,10 +6,9 @@ services:
       - "443:443"
     environment:
       - ENV
-      - CERTIFICATES_PATH
     volumes:
       - ./nginx/${ENV}/:/etc/nginx
-      - ${CERTIFICATES_PATH}/:/etc/nginx/certificates
+      - /etc/letsencrypt/:/etc/nginx/certificates
     networks:
       - nginx
       - minio
