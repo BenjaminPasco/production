@@ -20,6 +20,13 @@ jobs:
           env-slug: "prod"
           project-slug: "spotify-p0ey"
           domain: "https://eu.infisical.com"
+      - name: Debug Environment Variables
+        run: |
+          echo "MINIO_USER: $MINIO_USER"
+          echo "MINIO_PASSWORD: $MINIO_PASSWORD"
+          echo "DB_USER: $DB_USER"
+          echo "DB_PASSWORD: $DB_PASSWORD"
+          echo "DB_NAME: $DB_NAME"
       - name: Copy docker compose file
         run: |
           mkdir -p /home/runner/.ssh
@@ -31,4 +38,4 @@ jobs:
           scp -o StrictHostKeyChecking=no production.env ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/.env
           scp -r -o StrictHostKeyChecking=no nginx ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose down"
-          ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose up -d"
+          ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "MINIO_USER=$MINIO_USER MINIO_PASSWORD=$MINIO_PASSWORD DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD DB_NAME=$DB_NAME  docker compose up -d"
