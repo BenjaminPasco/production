@@ -73,6 +73,8 @@ services:
       - vault_data:/vault/file
       - ./vault/config/vault.hcl:/vault/config/vault.hcl
     command: "server -config=/vault/config/vault.hcl"
+    cap_add:
+      - IPC_LOCK
 
 networks:
   nginx:
