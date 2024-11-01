@@ -12,6 +12,13 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+      - name: Get Infisical Secrets
+        uses: Infisical/secrets-action@v1.0.7
+        with:
+          client-id: ${{ secrets.MACHINE_IDENTITY_CLIENT_ID }} # Your Infisical client ID
+          client-secret: ${{ secrets.MACHINE_IDENTITY_CLIENT_SECRET }} # Your Infisical client secret
+          env-slug: "prod"
+          project-slug: "spotify"
       - name: Copy docker compose file
         run: |
           mkdir -p /home/runner/.ssh
@@ -22,6 +29,5 @@ jobs:
           scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/docker-compose.yml
           scp -o StrictHostKeyChecking=no production.env ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/.env
           scp -r -o StrictHostKeyChecking=no nginx ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/
-          scp -r -o StrictHostKeyChecking=no vault ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose down"
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose up -d"
