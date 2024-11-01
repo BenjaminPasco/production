@@ -20,13 +20,6 @@ jobs:
           env-slug: "prod"
           project-slug: "spotify-p0ey"
           domain: "https://eu.infisical.com"
-      - name: Debug Environment Variables
-        run: |
-          echo "MINIO_USER: $MINIO_USER"
-          echo "MINIO_PASSWORD: $MINIO_PASSWORD"
-          echo "DB_USER: $DB_USER"
-          echo "DB_PASSWORD: $DB_PASSWORD"
-          echo "DB_NAME: $DB_NAME"
       - name: Copy docker compose file
         run: |
           mkdir -p /home/runner/.ssh
