@@ -67,19 +67,23 @@ services:
 
   vault:
     image: hashicorp/vault:latest
+    ports:
+      - "8200:8200"
+    command: "server"
+    cap_add:
+      - IPC_LOCK
     volumes:
       - vault_data:/vault/file
       - ./vault/config/vault.hcl:/vault/config/vault.hcl
-    command: "server -config=/vault/config/vault.hcl"
-    cap_add:
-      - IPC_LOCK
 
 networks:
   nginx:
-    driver: bridge 
+    driver: bridge
   minio:
     driver: bridge
   db:
+    driver: bridge
+  vault:
     driver: bridge
 
 volumes:
