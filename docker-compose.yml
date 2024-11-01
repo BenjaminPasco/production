@@ -21,17 +21,17 @@ services:
       - "com.centurylinklabs.watchtower.enable=true"
     environment:
       - NODE_ENV=production
-      - PORT=${SPOTIFY_PORT}
+      - PORT=8001
       - DOMAIN=${SPOTIFY_DOMAIN}
       - DB_USER=${DB_USER}
       - DB_PASSWORD=${DB_PASSWORD}
-      - DB_HOST=${DB_HOST}
-      - DB_PORT=${DB_PORT}
       - DB_NAME=${DB_NAME}
-      - MINIO_HOST=${MINIO_HOST}
-      - MINIO_PORT=${MINIO_PORT}
-      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
+      - DB_HOST=db
+      - DB_PORT=5432
+      - MINIO_HOST=minio
+      - MINIO_PORT=9000
+      - MINIO_ACCESS_KEY=${MINIO_USER}
+      - MINIO_SECRET_KEY=${MINIO_PASSWORD}
     restart: unless-stopped
     networks:
       - nginx
@@ -41,12 +41,12 @@ services:
   minio:
     image: minio/minio
     environment:
-      MINIO_ROOT_USER: "${MINIO_ACCESS_KEY}"
-      MINIO_ROOT_PASSWORD: "${MINIO_SECRET_KEY}"
-    command: server /data --console-address ":${MINIO_GUI_PORT}"
+      - MINIO_ROOT_USER=${MINIO_USER}
+      - MINIO_ROOT_PASSWORD=${MINIO_PASSWORD}
+    command: server /data --console-address ":9001"
     ports:
-      - "${MINIO_EXPOSED_PORT}:${MINIO_PORT}"
-      - "${MINIO_GUI_EXPOSED_PORT}:${MINIO_GUI_PORT}"
+      - "9000:9000"
+      - "9001:9001"
     volumes:
       - minio:/data
     networks:
@@ -59,23 +59,11 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
     ports:
-      - "${DB_EXPOSED_PORT}:${DB_PORT}"
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgres/data
     networks:
       - db
-
-  vault:
-    image: hashicorp/vault:latest
-    ports:
-      - "8200:8200"
-    command: "server"
-    cap_add:
-      - IPC_LOCK
-    volumes:
-      - vault_data:/vault/file
-      - ./vault/config/vault.hcl:/vault/config/vault.hcl
-      - /etc/letsencrypt:/etc/letsencrypt
 
 networks:
   nginx:
@@ -84,11 +72,8 @@ networks:
     driver: bridge
   db:
     driver: bridge
-  vault:
-    driver: bridge
 
 volumes:
   minio:
   postgres_data:
   letsencrypt:
-  vault_data:
