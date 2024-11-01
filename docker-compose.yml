@@ -14,32 +14,6 @@ services:
       - nginx
       - minio
 
-  watchtower:
-    image: containrrr/watchtower
-    command: 
-    - "--label-enable"
-    - "--interval"
-    - "30"
-    - "--rolling-restart"
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-
-  # home:
-  #   image: bpasco/production:home
-  #   platform: linux/amd64
-  #   labels:
-  #     - "com.centurylinklabs.watchtower.enable=true"
-  #   environment:
-  #     - HOST=true
-  #     - NODE_ENV=production
-  #     - PORT=8000
-  #   # deploy:
-  #   #   mode: replicated
-  #   #   replicas: 2
-  #   restart: unless-stopped
-  #   networks:
-  #     - nginx
-
   spotify:
     image: bpasco/spotify:latest
     platform: linux/amd64
@@ -58,9 +32,6 @@ services:
       - MINIO_PORT=${MINIO_PORT}
       - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
       - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-    # deploy:
-    #   mode: replicated
-    #   replicas: 2
     restart: unless-stopped
     networks:
       - nginx
@@ -70,8 +41,8 @@ services:
   minio:
     image: minio/minio
     environment:
-      MINIO_ROOT_USER: "${MINIO_ACCESS_KEY}"  # to be removed
-      MINIO_ROOT_PASSWORD: "${MINIO_SECRET_KEY}"  # to be removed
+      MINIO_ROOT_USER: "${MINIO_ACCESS_KEY}"
+      MINIO_ROOT_PASSWORD: "${MINIO_SECRET_KEY}"
     command: server /data --console-address ":${MINIO_GUI_PORT}"
     ports:
       - "${MINIO_EXPOSED_PORT}:${MINIO_PORT}"
@@ -94,6 +65,19 @@ services:
     networks:
       - db
 
+  vault:
+    image: hashicorp/vault:latest
+    ports:
+      - "8200:8200"
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: root
+      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
+    cap_add:
+      - IPC_LOCK
+    volumes:
+      - vault_data:/vault/file
+    command: "server -dev"  
+
 networks:
   nginx:
     driver: bridge 
@@ -106,3 +90,4 @@ volumes:
   minio:
   postgres_data:
   letsencrypt:
+  vault_data:
