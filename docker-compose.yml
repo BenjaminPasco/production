@@ -68,7 +68,7 @@ services:
   vault:
     image: hashicorp/vault:latest
     ports:
-      - "8200:8200"
+      - "8201:8201"
     volumes:
       - vault_data:/vault/file
       - ./vault/config/vault.hcl:/vault/config/vault.hcl
