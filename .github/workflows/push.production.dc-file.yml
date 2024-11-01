@@ -20,15 +20,21 @@ jobs:
           env-slug: "prod"
           project-slug: "spotify-p0ey"
           domain: "https://eu.infisical.com"
+          export-type: "file"
       - name: Copy docker compose file
         run: |
+          # setting up ssh key
           mkdir -p /home/runner/.ssh
           touch /home/runner/.ssh/id_rsa
           echo "${{ secrets.PRODUCTION_SSH }}" > /home/runner/.ssh/id_rsa
           chmod 600 /home/runner/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.PRODUCTION_HOST }} >> ~/.ssh/known_hosts
+          # copy docker compose file in case of update
           scp -o StrictHostKeyChecking=no docker-compose.yml ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/docker-compose.yml
-          scp -o StrictHostKeyChecking=no production.env ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/.env
+          # copy .env file in case of update
+          scp -o StrictHostKeyChecking=no .env ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/.env
+          # copy nginx config in case of update
           scp -r -o StrictHostKeyChecking=no nginx ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }}:~/
+          # restart services
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose down"
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "MINIO_USER=$MINIO_USER MINIO_PASSWORD=$MINIO_PASSWORD DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD DB_NAME=$DB_NAME  SPOTIFY_DOMAIN=$SPOTIFY_DOMAIN ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET REFRESH_TOKEN_SECRET=$REFRESH_TOKEN_SECRET docker compose up -d"
