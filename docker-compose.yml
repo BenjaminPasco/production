@@ -75,6 +75,7 @@ services:
     volumes:
       - vault_data:/vault/file
       - ./vault/config/vault.hcl:/vault/config/vault.hcl
+      - /etc/letsencrypt:/etc/letsencrypt
 
 networks:
   nginx:
