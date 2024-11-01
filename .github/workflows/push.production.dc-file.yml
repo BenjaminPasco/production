@@ -19,6 +19,7 @@ jobs:
           client-secret: ${{ secrets.MACHINE_IDENTITY_CLIENT_SECRET }} # Your Infisical client secret
           env-slug: "prod"
           project-slug: "spotify"
+          domain: "https://eu.infisical.com"
       - name: Copy docker compose file
         run: |
           mkdir -p /home/runner/.ssh
