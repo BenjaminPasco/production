@@ -38,4 +38,3 @@ jobs:
           # restart services
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose down"
           ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "docker compose up -d"
-          # ssh ${{ secrets.PRODUCTION_USERNAME }}@${{ secrets.PRODUCTION_HOST }} "MINIO_USER=$MINIO_USER MINIO_PASSWORD=$MINIO_PASSWORD DB_USER=$DB_USER DB_PASSWORD=$DB_PASSWORD DB_NAME=$DB_NAME  SPOTIFY_DOMAIN=$SPOTIFY_DOMAIN ACCESS_TOKEN_SECRET=$ACCESS_TOKEN_SECRET REFRESH_TOKEN_SECRET=$REFRESH_TOKEN_SECRET docker compose up -d"
